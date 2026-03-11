@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { Heebo } from 'next/font/google'
 import './globals.css'
+import ConvexClientProvider from '@/components/ConvexClientProvider' // ייבוא הפרובאיידר
 
 const heebo = Heebo({
   subsets: ['latin', 'hebrew'],
@@ -23,7 +24,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="he" dir="rtl">
         <body className={`${heebo.className} antialiased bg-slate-950 text-slate-100`}>
-          {children}
+            <ConvexClientProvider>
+
+            {children}
+            </ConvexClientProvider>
         </body>
       </html>
     </ClerkProvider>

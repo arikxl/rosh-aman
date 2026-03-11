@@ -2,10 +2,13 @@
 
 import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
+import { useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
 
 export default function Home() {
   // אנחנו משתמשים ב-Hook כדי לבדוק אם המשתמש מחובר
   const { isSignedIn, isLoaded } = useAuth();
+  const userData = useQuery(api.users.getMyData);
 
   // אם המערכת עדיין טוענת את מצב המשתמש
   if (!isLoaded) return <div className="min-h-screen bg-slate-950" />;
@@ -43,8 +46,13 @@ export default function Home() {
             <div className="flex flex-col items-center gap-8 w-full">
               <div className="flex items-center gap-4 p-3 bg-slate-900/50 rounded-2xl border border-slate-800">
                 <UserButton  />
-                <span className="text-slate-300 text-sm font-heebo">המפקד/ת מחובר/ת</span>
-              </div>
+                  <div className="flex flex-col items-start leading-tight">
+                    <span className="text-slate-400 text-xs uppercase tracking-tighter">ניקוד מצטבר</span>
+                    <span className="text-emerald-400 font-bold text-xl">
+                      {userData?.totalPoints || 0} נקודות
+                    </span>
+                  </div>
+                </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md">
                 <Link href="/game" className="p-6 bg-emerald-600/10 border border-emerald-500/20 hover:bg-emerald-600/20 rounded-xl text-2xl font-bold transition-all text-emerald-400 font-heebo">
