@@ -1,65 +1,67 @@
-import Image from "next/image";
+"use client";
+
+import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function Home() {
+  // אנחנו משתמשים ב-Hook כדי לבדוק אם המשתמש מחובר
+  const { isSignedIn, isLoaded } = useAuth();
+
+  // אם המערכת עדיין טוענת את מצב המשתמש
+  if (!isLoaded) return <div className="min-h-screen bg-slate-950" />;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 text-right font-sans relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>
+
+      <div className="z-10 w-full max-w-2xl text-center">
+        <header className="mb-16">
+          <div className="inline-block px-4 py-1 border border-emerald-500/30 bg-emerald-500/10 rounded-full text-emerald-400 text-sm mb-4 tracking-widest uppercase">
+            מערכת הערכת מודיעין
+          </div>
+          <h1 className="text-7xl font-black tracking-tighter mb-4 bg-gradient-to-b from-white to-slate-500 bg-clip-text text-transparent">
+            ראש אמ&quot;ן
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-xl text-slate-400 max-w-md mx-auto leading-relaxed font-heebo">
+            האם יש לך את מה שנדרש כדי לשלוט במידע האסטרטגי של המזרח התיכון?
           </p>
+        </header>
+
+        <div className="flex flex-col items-center gap-6">
+          {!isSignedIn ? (
+            /* מצב: לא מחובר */
+            <>
+              <p className="text-slate-500 mb-2 font-heebo">יש להזדהות כדי להתחיל בצבירת עיטורים</p>
+              <SignInButton mode="modal">
+                <button className="group relative px-12 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xl rounded-lg transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(16,185,129,0.3)] font-heebo">
+                  כניסה למערכת
+                </button>
+              </SignInButton>
+            </>
+          ) : (
+            /* מצב: מחובר */
+            <div className="flex flex-col items-center gap-8 w-full">
+              <div className="flex items-center gap-4 p-3 bg-slate-900/50 rounded-2xl border border-slate-800">
+                <UserButton  />
+                <span className="text-slate-300 text-sm font-heebo">המפקד/ת מחובר/ת</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md">
+                <Link href="/game" className="p-6 bg-emerald-600/10 border border-emerald-500/20 hover:bg-emerald-600/20 rounded-xl text-2xl font-bold transition-all text-emerald-400 font-heebo">
+                  התחלת מבצע 🚀
+                </Link>
+                <Link href="/medals" className="p-6 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl text-2xl font-bold transition-all text-white font-heebo">
+                  ארון עיטורים 🎖️
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+        <footer className="mt-24 text-slate-600 text-[10px] tracking-[0.3em] uppercase opacity-50">
+          Classification: Top Secret | Unit 8200 | v1.0.0
+        </footer>
+      </div>
+    </main>
   );
 }
