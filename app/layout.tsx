@@ -12,7 +12,17 @@ const heebo = Heebo({
 
 export const metadata: Metadata = {
   title: 'ראש אמ"ן - הערכת מודיעין אסטרטגית',
-  description: 'משחק הטריוויה הגיאופוליטי של המזרח התיכון. האם תצליחו להשיג את כל העיטורים?',
+  description: 'משחק הטריוויה הגיאופוליטי של המזרח התיכון.',
+  manifest: '/manifest.json', // קישור למניפסט
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16' },
+      { url: '/favicon-32x32.png', sizes: '32x32' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png' },
+    ],
+  },
 }
 
 export default function RootLayout({

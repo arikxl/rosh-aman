@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as data from "../data.js";
 import type * as questions from "../questions.js";
 import type * as seed from "../seed.js";
 import type * as users from "../users.js";
@@ -19,6 +20,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  data: typeof data;
   questions: typeof questions;
   seed: typeof seed;
   users: typeof users;

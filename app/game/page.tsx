@@ -2,18 +2,21 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function GamePage() {
-    // שליפת השאלות מה-Backend
-    const questions = useQuery(api.questions.getAll);
+    // שליפת השאלות והמוטציות מה-Backend
+    const questions = useQuery(api.questions.getGameRound);
     const saveScore = useMutation(api.users.updateScore);
+    const updateGameStats = useMutation(api.users.updateGameStats); // הפונקציה החדשה למדליות
 
     // ניהול מצב המשחק
     const [currentIndex, setCurrentIndex] = useState(0);
     const [score, setScore] = useState(0);
     const [showResult, setShowResult] = useState(false);
+    const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+    const [isChecking, setIsChecking] = useState(false);
 
     // מצב טעינה
     if (questions === undefined) {
@@ -37,38 +40,62 @@ export default function GamePage() {
 
     const currentQuestion = questions[currentIndex];
 
-
     const handleAnswer = async (index: number) => {
+        if (isChecking) return; // מונע לחיצות כפולות בזמן הבדיקה
+
+        setIsChecking(true);
+        setSelectedAnswer(index);
+
         const isCorrect = index === currentQuestion.correctIndex;
-        // אנחנו מחשבים את הניקוד הסופי רגע לפני השליחה
-        const finalPoints = score + (isCorrect ? 1 : 0);
+        const finalPoints = isCorrect ? 1 : 0; // הנקודה של השאלה הנוכחית
 
-        if (isCorrect) setScore(prev => prev + 1);
+        // מחכים 1.5 שניות כדי שהמשתמש יראה את התוצאה
+        setTimeout(async () => {
+            if (isCorrect) setScore(prev => prev + 1);
 
-        if (currentIndex < questions.length - 1) {
-            setCurrentIndex(prev => prev + 1);
-        } else {
-            try {
-                // שליחת הניקוד ל-DB
-                await saveScore({ pointsToAdd: finalPoints });
-                setShowResult(true);
-            } catch (err) {
-                console.error("שגיאה בשמירת הניקוד:", err);
-                // גם אם השמירה נכשלה, נציג את מסך הסיום כדי שהמשתמש לא ייתקע
+            // אם יש עוד שאלות - עוברים לשאלה הבאה
+            if (currentIndex < questions.length - 1) {
+                setCurrentIndex(prev => prev + 1);
+                setSelectedAnswer(null); // מאפסים לבחירה הבאה
+                setIsChecking(false);
+            }
+            // אם זו השאלה האחרונה - שומרים נתונים ומסיימים
+            else {
+                // מחשבים את הציון הסופי המדויק (הציון שנצבר + התשובה האחרונה)
+                const finalScore = score + finalPoints;
+
+                try {
+                    // 1. שמירת הניקוד הרגיל לטבלת המובילים (הקוד הישן והטוב שלך)
+                    await saveScore({ pointsToAdd: finalScore });
+
+                    // 2. שמירת הסטטיסטיקות עבור המדליות (הקוד החדש!)
+                    await updateGameStats({
+                        correctAnswersCount: finalScore, // כמה ענה נכון
+                        totalQuestionsInGame: questions.length, // כמה שאלות היו (לרוב 10)
+                        topicId: questions[0].topicId, // שואב אוטומטית את שם הנושא מהשאלה הראשונה במשחק
+                    });
+                } catch (error) {
+                    console.error("שגיאה בשמירת נתוני המשחק:", error);
+                }
+
+                // מציגים את מסך הסיום
                 setShowResult(true);
             }
-        }
+        }, 1500);
     };
 
-    
     // מסך סיום מבצע
     if (showResult) {
         return (
             <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-right">
                 <h2 className="text-4xl font-bold mb-4">המבצע הושלם</h2>
                 <p className="text-2xl mb-8">דירוג סופי: {score} מתוך {questions.length}</p>
-                <Link href="/" className="px-8 py-3 bg-emerald-600 rounded-lg font-bold">
-                    חזרה למטה
+                <Link href="/" className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 transition-colors rounded-lg font-bold">
+                    חזרה למפקדה
+                </Link>
+                {/* הוספתי כפתור מעבר ישיר לארון המדליות */}
+                <Link href="/medals" className="px-8 py-3 mt-4 border border-emerald-600 text-emerald-500 hover:bg-emerald-900/30 transition-colors rounded-lg font-bold">
+                    צפה בארון ההישגים
                 </Link>
             </div>
         );
@@ -97,16 +124,38 @@ export default function GamePage() {
                     </h2>
 
                     <div className="grid grid-cols-1 gap-4">
-                        {currentQuestion.options.map((option, index) => (
-                            <button
-                                key={index}
-                                onClick={() => handleAnswer(index)}
-                                className="w-full p-5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-emerald-500 rounded-xl text-right transition-all text-lg group flex justify-between items-center"
-                            >
-                                <span className="opacity-0 group-hover:opacity-100 text-emerald-500 transition-opacity">◀</span>
-                                {option}
-                            </button>
-                        ))}
+                        {currentQuestion.options.map((option, index) => {
+                            // לוגיקת צביעה
+                            const isSelected = selectedAnswer === index;
+                            const isCorrect = index === currentQuestion.correctIndex;
+
+                            let buttonStyle = "bg-slate-800 border-slate-700 hover:border-emerald-500";
+
+                            if (selectedAnswer !== null) {
+                                if (isCorrect) {
+                                    buttonStyle = "bg-emerald-600/20 border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]";
+                                } else if (isSelected) {
+                                    buttonStyle = "bg-red-600/20 border-red-500 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.2)]";
+                                } else {
+                                    buttonStyle = "bg-slate-800/50 border-slate-800 opacity-50";
+                                }
+                            }
+
+                            return (
+                                <button
+                                    key={index}
+                                    disabled={isChecking}
+                                    onClick={() => handleAnswer(index)}
+                                    className={`w-full p-5 border rounded-xl text-right transition-all text-lg flex justify-between items-center group ${buttonStyle}`}
+                                >
+                                    <span className="text-xl">
+                                        {selectedAnswer !== null && isCorrect && "✓"}
+                                        {selectedAnswer === index && !isCorrect && "✕"}
+                                    </span>
+                                    {option}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

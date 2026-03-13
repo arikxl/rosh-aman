@@ -1,32 +1,31 @@
 import { mutation } from "./_generated/server";
-import { v } from "convex/values";
+import { data } from "./data"; // מושך את מערך 1,029 השאלות מהקובץ data.js
 
 export const resetAndSeed = mutation({
     args: {},
     handler: async (ctx) => {
-        // 1. מחיקת שאלות קיימות (כדי שלא יהיו כפילויות בזמן פיתוח)
+        // 1. מחיקת שאלות קיימות (כדי שלא יהיו כפילויות)
         const existingQuestions = await ctx.db.query("questions").collect();
         for (const q of existingQuestions) {
             await ctx.db.delete(q._id);
         }
 
-        // 2. הכנסת 25 השאלות הראשונות (5 נושאים X 5 שאלות)
-        const initialQuestions = [
-            // לבנון
-            { topicId: "lebanon", text: "איזה קו גבול נקבע ע'י האו'ם לאחר נסיגת צה'ל ב-2000?", options: ["הקו הירוק", "הקו הכחול", "קו ה-17 במאי", "קו הפסקת האש"], correctIndex: 1, explanation: "הקו הכחול הוא קו הנסיגה הבינלאומי." },
-            { topicId: "lebanon", text: "מי היה נשיא לבנון שחוסל ב-1982?", options: ["רפיק חרירי", "בשיר ג'ומאייל", "מישל עאון", "פואד סניורה"], correctIndex: 1, explanation: "בשיר ג'ומאייל חוסל זמן קצר לאחר שנבחר." },
-            // איראן
-            { topicId: "iran", text: "באיזו שנה התרחשה המהפכה האסלאמית באיראן?", options: ["1967", "1973", "1979", "1982"], correctIndex: 2, explanation: "ב-1979 הפכה איראן לרפובליקה אסלאמית." },
-            { topicId: "iran", text: "מהו המצר הימי האסטרטגי בשליטת איראן?", options: ["מיצרי בוספורוס", "מיצרי הורמוז", "מיצרי בבל מנדב", "תעלת סואץ"], correctIndex: 1, explanation: "מיצרי הורמוז הם עורק נפט עולמי." },
-            // מצרים
-            { topicId: "egypt", text: "מי המנהיג המצרי שחתם על הסכם השלום עם ישראל?", options: ["נאצר", "סאדאת", "מובארק", "סיסי"], correctIndex: 1, explanation: "אנואר סאדאת חתם על ההסכם ב-1979." },
-            // ... אפשר להוסיף כאן את שאר ה-25
-        ];
+        console.log(`נמחקו ${existingQuestions.length} שאלות ישנות.`);
 
-        for (const q of initialQuestions) {
-            await ctx.db.insert("questions", q);
+        // 2. הכנסת כל השאלות החדשות מהקובץ שלנו
+        let count = 0;
+        for (const q of data) {
+            await ctx.db.insert("questions", {
+                topicId: q.topicId,
+                text: q.text,
+                options: q.options,
+                correctIndex: q.correctIndex,
+                // אם יש לך שדה explanation ב-schema, כדאי לוודא שהוא מוגדר כ-optional
+                // כי בשאלות שייצרנו אין כרגע הסברים.
+            });
+            count++;
         }
 
-        return "הנתונים הוזנו בהצלחה למערכת ראש אמ\"ן!";
+        return `המשימה הושלמה! הועלו בהצלחה ${count} שאלות למאגר הנתונים של אמ"ן.`;
     },
 });

@@ -1,6 +1,10 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+
+
+
+
 export default defineSchema({
   // מאגר השאלות המרכזי
   questions: defineTable({
@@ -9,7 +13,7 @@ export default defineSchema({
     imageUrl: v.optional(v.string()), // תמונה (אופציונלי)
     options: v.array(v.string()),     // 4 אפשרויות
     correctIndex: v.number(),          // אינדקס התשובה הנכונה (0-3)
-    explanation: v.string(),           // הסבר לימודי לאחר התשובה
+    explanation: v.optional(v.string())// הסבר לימודי לאחר התשובה
   }).index("by_topic", ["topicId"]),
 
   // תיעוד הצלחות של משתמשים (לצורך מדליות)
@@ -26,5 +30,11 @@ export default defineSchema({
     email: v.string(),
     picture: v.string(),
     totalPoints: v.number(), // ניקוד מצטבר לטבלת המובילים
-  }).index("by_email", ["email"]),
+    medals: v.optional(v.array(v.string())),
+    totalGamesPlayed: v.optional(v.number()),
+    totalCorrectAnswers: v.optional(v.number()),
+    perfectGames: v.optional(v.number()),
+    correctAnswersByTopic: v.optional(v.record(v.string(), v.number())),
+  }).index("by_email", ["email"])
+    .index("by_points", ["totalPoints"]),
 });

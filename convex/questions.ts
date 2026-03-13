@@ -1,10 +1,33 @@
 import { query } from "./_generated/server";
-import { v } from "convex/values";
 
-// פונקציה לשליפת כל השאלות (בשלב הבא נשכלל אותה לרנדומליות של 10 שאלות)
-export const getAll = query({
+export const getGameRound = query({
     args: {},
     handler: async (ctx) => {
-        return await ctx.db.query("questions").collect();
+        const allQuestions = await ctx.db.query("questions").collect();
+
+        // 1. ערבוב השאלות ובחירת 10
+        const shuffledQuestions = [...allQuestions]
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 10);
+
+        // 2. ערבוב התשובות בתוך כל שאלה
+        return shuffledQuestions.map((q) => {
+            const optionsWithStatus = q.options.map((opt, index) => ({
+                text: opt,
+                isCorrect: index === q.correctIndex,
+            }));
+
+            // ערבוב התשובות
+            const shuffledOptions = optionsWithStatus.sort(() => Math.random() - 0.5);
+
+            // מציאת האינדקס החדש של התשובה הנכונה
+            const newCorrectIndex = shuffledOptions.findIndex((opt) => opt.isCorrect);
+
+            return {
+                ...q,
+                options: shuffledOptions.map((opt) => opt.text),
+                correctIndex: newCorrectIndex,
+            };
+        });
     },
 });
