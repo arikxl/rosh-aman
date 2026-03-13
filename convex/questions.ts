@@ -1,8 +1,11 @@
 import { query } from "./_generated/server";
+import { v } from "convex/values";
 
 export const getGameRound = query({
-    args: {},
-    handler: async (ctx) => {
+    args: {
+        seed: v.number() // הוספנו את זה כדי לשבור את הקאש של Convex
+    },
+    handler: async (ctx, args) => {
         const allQuestions = await ctx.db.query("questions").collect();
 
         // 1. ערבוב השאלות ובחירת 10

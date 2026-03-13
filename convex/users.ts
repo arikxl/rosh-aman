@@ -70,50 +70,49 @@ export const getLeaderboard = query({
 });
 
 
-// פונקציה לעדכון הסטטיסטיקות ומדליות בסיום משחק
 export const updateGameStats = mutation({
     args: {
-        correctAnswersCount: v.number(), // כמה ענה נכון במשחק הנוכחי
-        totalQuestionsInGame: v.number(), // כמה שאלות היו במשחק סך הכל
-        topicId: v.string(), // באיזה נושא הוא שיחק הרגע
+        // במקום topicId אחד, אנחנו מקבלים מערך של כל ה-topicIds שהיו במשחק (לפי סדר השאלות)
+        // ומערך של האם השחקן צדק בכל שאלה (למשל [true, false, true...])
+        results: v.array(v.object({
+            topicId: v.string(),
+            isCorrect: v.boolean(),
+        })),
     },
     handler: async (ctx, args) => {
-        // 1. זיהוי אוטומטי של המשתמש דרך Auth
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity || !identity.email) {
-            throw new Error("משתמש לא מחובר או חסר אימייל");
-        }
+        if (!identity || !identity.email) throw new Error("Not authenticated");
 
-        // 2. חיפוש המשתמש במסד הנתונים
         const user = await ctx.db
             .query("users")
             .withIndex("by_email", (q) => q.eq("email", identity.email!))
             .unique();
 
-        if (!user) throw new Error("משתמש לא נמצא במסד הנתונים");
+        if (!user) throw new Error("User not found");
 
-        // 3. בודקים האם זה משחק מושלם (100% הצלחה)
-        const isPerfect = args.correctAnswersCount === args.totalQuestionsInGame;
+        const correctCount = args.results.filter(r => r.isCorrect).length;
+        const isPerfect = correctCount === args.results.length;
 
-        // 4. מחשבים את הנתונים החדשים
-        const newTotalGames = (user.totalGamesPlayed || 0) + 1;
-        const newTotalCorrect = (user.totalCorrectAnswers || 0) + args.correctAnswersCount;
-        const newPerfectGames = (user.perfectGames || 0) + (isPerfect ? 1 : 0);
+        // עדכון סטטיסטיקות כלליות
+        const patchData = { // הסרתי את ה- ": any"
+            totalGamesPlayed: (user.totalGamesPlayed || 0) + 1,
+            totalCorrectAnswers: (user.totalCorrectAnswers || 0) + correctCount,
+            perfectGames: (user.perfectGames || 0) + (isPerfect ? 1 : 0),
+            correctAnswersByTopic: {} // נגדיר אותו כאן כברירת מחדל כדי למנוע שגיאות טיפוס בהמשך
+        };
 
-        // 5. מעדכנים את ספירת התשובות הספציפית לנושא הנוכחי
-        const currentTopicStats = user.correctAnswersByTopic || {};
-        const newTopicScore = (currentTopicStats[args.topicId] || 0) + args.correctAnswersCount;
+        // עדכון סטטיסטיקות לפי נושאים
+        const newTopicStats = { ...(user.correctAnswersByTopic || {}) };
 
-        // 6. שומרים הכל
-        await ctx.db.patch(user._id, {
-            totalGamesPlayed: newTotalGames,
-            totalCorrectAnswers: newTotalCorrect,
-            perfectGames: newPerfectGames,
-            correctAnswersByTopic: {
-                ...currentTopicStats,
-                [args.topicId]: newTopicScore,
-            },
+        args.results.forEach(res => {
+            if (res.isCorrect) {
+                newTopicStats[res.topicId] = (newTopicStats[res.topicId] || 0) + 1;
+            }
         });
+
+        patchData.correctAnswersByTopic = newTopicStats;
+
+        await ctx.db.patch(user._id, patchData);
     },
 });
 

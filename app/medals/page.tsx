@@ -3,9 +3,9 @@
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { TOPIC_MEDALS, GENERIC_MEDALS, PLATINUM_MEDAL } from "@/constants/medals";
 import { Shield, Award, Crown, Lock, ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
+import { TOPIC_MEDALS, GENERIC_MEDALS, PLATINUM_MEDAL, type Medal } from "@/constants/medals";
 
 export default function MedalsPage() {
     const { userId } = useAuth();
@@ -31,7 +31,7 @@ export default function MedalsPage() {
         );
     }
 
-    const isMedalUnlocked = (medal: any) => {
+    const isMedalUnlocked = (medal: Medal) => {
         if (medal.type === "topic") {
             return (stats.correctAnswersByTopic?.[medal.id] || 0) >= medal.threshold;
         }
@@ -124,6 +124,7 @@ export default function MedalsPage() {
                 </div>
 
                 {/* מדליות גנריות (אבני דרך מבצעיות) */}
+                {/* מדליות גנריות (אבני דרך מבצעיות) */}
                 <div className="mb-16">
                     <h2 className="text-2xl font-bold mb-6 text-emerald-500 flex items-center gap-3 border-b border-slate-800 pb-4">
                         <Award className="w-7 h-7" />
@@ -132,14 +133,43 @@ export default function MedalsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {GENERIC_MEDALS.map((medal) => {
                             const unlocked = isMedalUnlocked(medal);
+
+                            // חישוב התקדמות ספציפי למדליות גנריות
+                            let currentValue = 0;
+                            if (medal.id.startsWith("games")) currentValue = stats.totalGamesPlayed;
+                            if (medal.id.startsWith("correct")) currentValue = stats.totalCorrectAnswers;
+                            if (medal.id.startsWith("perfect")) currentValue = stats.perfectGames;
+
+                            const progress = Math.min((currentValue / medal.threshold) * 100, 100);
+
                             return (
-                                <div key={medal.id} className={`p-6 rounded-2xl border flex items-center gap-5 transition-all duration-300 ${unlocked ? 'bg-slate-900 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-slate-900/40 border-slate-800 opacity-60 grayscale'}`}>
-                                    <div className={`p-4 rounded-full ${unlocked ? 'bg-emerald-900/30 text-emerald-400' : 'bg-slate-800 text-slate-600'}`}>
-                                        {unlocked ? <Award className="w-8 h-8" /> : <Lock className="w-8 h-8" />}
+                                <div key={medal.id} className={`p-6 rounded-2xl border flex flex-col transition-all duration-300 ${unlocked ? 'bg-slate-900 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-slate-900/40 border-slate-800 opacity-60'}`}>
+                                    <div className="flex items-center gap-5 mb-4">
+                                        <div className={`p-4 rounded-full ${unlocked ? 'bg-emerald-900/30 text-emerald-400' : 'bg-slate-800 text-slate-600'}`}>
+                                            {unlocked ? <Award className="w-8 h-8" /> : <Lock className="w-8 h-8" />}
+                                        </div>
+                                        <div className="text-right flex-1">
+                                            <h4 className={`font-bold text-lg mb-1 ${unlocked ? 'text-slate-100' : 'text-slate-500'}`}>{medal.name}</h4>
+                                            <p className="text-sm text-slate-400 leading-relaxed">{medal.description}</p>
+                                        </div>
                                     </div>
-                                    <div className="text-right flex-1">
-                                        <h4 className={`font-bold text-lg mb-1 ${unlocked ? 'text-slate-100' : 'text-slate-500'}`}>{medal.name}</h4>
-                                        <p className="text-sm text-slate-400 leading-relaxed">{medal.description}</p>
+
+                                    {/* פרוגרס בר גנרי */}
+                                    <div className="mt-auto pt-2">
+                                        <div className="flex justify-between items-center mb-1.5 px-1">
+                                            <span className="text-[10px] font-mono text-slate-500">
+                                                {currentValue.toLocaleString()} / {medal.threshold.toLocaleString()}
+                                            </span>
+                                            <span className="text-[10px] font-bold text-emerald-500/80">
+                                                {Math.floor(progress)}%
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-slate-800 rounded-full h-1.5">
+                                            <div
+                                                className={`h-1.5 rounded-full transition-all duration-1000 ${unlocked ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-slate-600'}`}
+                                                style={{ width: `${progress}%` }}
+                                            ></div>
+                                        </div>
                                     </div>
                                 </div>
                             )
