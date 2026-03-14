@@ -1,8 +1,10 @@
-import type { Metadata } from 'next'
-import { ClerkProvider } from '@clerk/nextjs'
 import { Heebo } from 'next/font/google'
+import { ClerkProvider } from '@clerk/nextjs'
+import type { Metadata } from 'next'
+
 import './globals.css'
 import ConvexClientProvider from '@/components/ConvexClientProvider' // ייבוא הפרובאיידר
+
 
 const heebo = Heebo({
   subsets: ['latin', 'hebrew'],
@@ -11,8 +13,8 @@ const heebo = Heebo({
 })
 
 export const metadata: Metadata = {
-  title: 'ראש אמ"ן - הערכת מודיעין אסטרטגית',
-  description: 'משחק הטריוויה הגיאופוליטי של המזרח התיכון.',
+  title: 'ראש אמ"ן',
+  description: 'חמ"ל הטריוויה המבצעי: המבחן של קהיליית המודיעין',
   manifest: '/manifest.json', // קישור למניפסט
   icons: {
     icon: [

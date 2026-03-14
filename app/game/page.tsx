@@ -153,10 +153,10 @@ export default function GamePage() {
                 </div>
 
                 {/* כרטיסיית השאלה - צמצום Padding כדי לחסוך מקום */}
-                <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 p-6 rounded-[2rem] shadow-2xl relative overflow-hidden">
+                <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 p-6 rounded-4xl shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-3xl rounded-full -mr-12 -mt-12"></div>
 
-                    <h2 className="text-2xl md:text-3xl font-bold mb-8 leading-tight text-slate-100 min-h-[80px]">
+                    <h2 className="text-2xl md:text-3xl font-bold mb-8 leading-tight text-slate-100 min-h-20">
                         {currentQuestion.text}
                     </h2>
 
