@@ -60,6 +60,7 @@ export default function Home() {
             /* מצב: לא מחובר */
             <div className="flex flex-col items-center gap-6">
               <p className="text-slate-500 font-heebo">יש להזדהות כדי להתחיל בצבירת עיטורים</p>
+                
               <SignInButton mode="modal">
                 <button className="group relative px-12 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xl rounded-lg transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(16,185,129,0.3)] font-heebo">
                   כניסה למערכת
@@ -194,3 +195,5 @@ export default function Home() {
     </main>
   );
 }
+
+
