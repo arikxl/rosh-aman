@@ -22,7 +22,6 @@ function GenericMedalCard({ medal, unlocked, currentValue, iconPath }: any) {
     const progress = Math.min((currentValue / medal.threshold) * 100, 100);
     return (
         <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 transition-all ${unlocked ? 'bg-slate-900 border-emerald-500/30 shadow-lg' : 'bg-slate-950/40 border-slate-900 opacity-60'}`}>
-            {/* תמונה - ממורכזת במובייל */}
             <div className="relative w-20 h-20 shrink-0">
                 <Image
                     src={unlocked && medal.iconUrl ? medal.iconUrl : iconPath}
@@ -32,14 +31,12 @@ function GenericMedalCard({ medal, unlocked, currentValue, iconPath }: any) {
                 />
             </div>
 
-            {/* תוכן טקסטואלי */}
             <div className="flex-1 text-center sm:text-right w-full">
                 <h4 className={`font-bold text-lg mb-1 ${unlocked ? 'text-slate-100' : 'text-slate-600'}`}>{medal.name}</h4>
                 <p className="text-xs text-slate-500 mb-4 h-8 sm:h-auto line-clamp-2 sm:line-clamp-none">
                     {medal.description}
                 </p>
 
-                {/* פרוגרס בר */}
                 <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                     <div
                         className={`h-full transition-all duration-1000 ${unlocked ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-slate-700'}`}
@@ -60,9 +57,12 @@ function GenericMedalCard({ medal, unlocked, currentValue, iconPath }: any) {
 
 export default function MedalsPage() {
     const { userId } = useAuth();
+
+    // stats יהיה undefined בזמן טעינה, ו-null אם המשתמש לא נמצא ב-DB
     const stats = useQuery(api.users.getUserStats, userId ? {} : "skip");
 
-    if (!stats) {
+    // 1. בזמן שהשאילתה רצה (undefined), נציג מסך טעינה
+    if (stats === undefined) {
         return (
             <div className="min-h-screen bg-slate-950 flex items-center justify-center">
                 <div className="text-emerald-500 animate-pulse font-mono tracking-widest text-xl">
@@ -72,14 +72,24 @@ export default function MedalsPage() {
         );
     }
 
+    // 2. טיפול בשחקן חדש: אם stats הוא null, ניצור אובייקט עם ערכי אפס
+    // זה מונע את השגיאה "Cannot read properties of null"
+    const effectiveStats = stats ?? {
+        totalGamesPlayed: 0,
+        totalCorrectAnswers: 0,
+        perfectGames: 0,
+        correctAnswersByTopic: {}
+    };
+
     const isMedalUnlocked = (medal: Medal) => {
         if (medal.type === "topic") {
-            return (stats.correctAnswersByTopic?.[medal.id] || 0) >= medal.threshold;
+            const topicScore = effectiveStats.correctAnswersByTopic?.[medal.id] || 0;
+            return topicScore >= medal.threshold;
         }
         if (medal.type === "generic") {
-            if (medal.id.startsWith("games")) return stats.totalGamesPlayed >= medal.threshold;
-            if (medal.id.startsWith("correct")) return stats.totalCorrectAnswers >= medal.threshold;
-            if (medal.id.startsWith("perfect")) return stats.perfectGames >= medal.threshold;
+            if (medal.id.startsWith("games")) return (effectiveStats.totalGamesPlayed || 0) >= medal.threshold;
+            if (medal.id.startsWith("correct")) return (effectiveStats.totalCorrectAnswers || 0) >= medal.threshold;
+            if (medal.id.startsWith("perfect")) return (effectiveStats.perfectGames || 0) >= medal.threshold;
         }
         return false;
     };
@@ -112,6 +122,13 @@ export default function MedalsPage() {
                     </div>
                 </div>
 
+                {/* הודעת ברוך הבא לשחקן חדש */}
+                {stats === null && (
+                    <div className="mb-12 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl text-emerald-400/80 text-sm text-center font-mono">
+                        מערכת זיהוי סוכנים: משתמש חדש זוהה. התחל בפעילות מבצעית לצבירת עיטורים.
+                    </div>
+                )}
+
                 {/* מדליית הפלטינום */}
                 <div className="mb-16">
                     <div className={`p-6 sm:p-10 rounded-[32px] border-2 text-center transition-all duration-700 ${isPlatinumUnlocked ? 'bg-slate-900 border-yellow-500 shadow-[0_0_40px_rgba(234,179,8,0.1)]' : 'bg-slate-900/30 border-slate-800 opacity-80'}`}>
@@ -133,7 +150,7 @@ export default function MedalsPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
                         {TOPIC_MEDALS.map((medal) => {
                             const unlocked = isMedalUnlocked(medal);
-                            const currentScore = Math.min(stats.correctAnswersByTopic?.[medal.id] || 0, medal.threshold);
+                            const currentScore = Math.min(effectiveStats.correctAnswersByTopic?.[medal.id] || 0, medal.threshold);
                             return (
                                 <div key={medal.id} className={`p-4 rounded-2xl border flex flex-col items-center text-center transition-all ${unlocked ? 'bg-slate-900 border-emerald-500/40' : 'bg-slate-950/20 border-slate-900'}`}>
                                     <div className="relative w-20 h-24 sm:w-24 sm:h-28 mb-4">
@@ -152,7 +169,7 @@ export default function MedalsPage() {
                     </div>
                 </div>
 
-                {/* אבני דרך מבצעיות - שורות רספונסיביות */}
+                {/* אבני דרך מבצעיות */}
                 <div className="space-y-16 sm:space-y-20">
                     <h2 className="text-xl sm:text-2xl font-bold text-emerald-500 flex items-center gap-3 border-b border-slate-800 pb-4">
                         <Award className="w-6 h-6 sm:w-7 sm:h-7" />
@@ -163,7 +180,7 @@ export default function MedalsPage() {
                         <SectionHeader title="ותק מבצעי" icon={Zap} count={gameRibbons.filter(isMedalUnlocked).length} total={gameRibbons.length} />
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                             {gameRibbons.map(medal => (
-                                <GenericMedalCard key={medal.id} medal={medal} unlocked={isMedalUnlocked(medal)} currentValue={stats.totalGamesPlayed} iconPath="/imgs/locked_ribbon_generic.png" />
+                                <GenericMedalCard key={medal.id} medal={medal} unlocked={isMedalUnlocked(medal)} currentValue={effectiveStats.totalGamesPlayed || 0} iconPath="/imgs/locked_ribbon_generic.png" />
                             ))}
                         </div>
                     </section>
@@ -172,7 +189,7 @@ export default function MedalsPage() {
                         <SectionHeader title="מאגר ידע מצטבר" icon={ListChecks} count={correctCoins.filter(isMedalUnlocked).length} total={correctCoins.length} />
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                             {correctCoins.map(medal => (
-                                <GenericMedalCard key={medal.id} medal={medal} unlocked={isMedalUnlocked(medal)} currentValue={stats.totalCorrectAnswers} iconPath="/imgs/locked_coin_generic.png" />
+                                <GenericMedalCard key={medal.id} medal={medal} unlocked={isMedalUnlocked(medal)} currentValue={effectiveStats.totalCorrectAnswers || 0} iconPath="/imgs/locked_coin_generic.png" />
                             ))}
                         </div>
                     </section>
@@ -181,7 +198,7 @@ export default function MedalsPage() {
                         <SectionHeader title="רמת דיוק וביצוע" icon={Target} count={perfectHexagons.filter(isMedalUnlocked).length} total={perfectHexagons.length} />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 max-w-4xl">
                             {perfectHexagons.map(medal => (
-                                <GenericMedalCard key={medal.id} medal={medal} unlocked={isMedalUnlocked(medal)} currentValue={stats.perfectGames} iconPath="/imgs/locked_hex_generic.png" />
+                                <GenericMedalCard key={medal.id} medal={medal} unlocked={isMedalUnlocked(medal)} currentValue={effectiveStats.perfectGames || 0} iconPath="/imgs/locked_hex_generic.png" />
                             ))}
                         </div>
                     </section>

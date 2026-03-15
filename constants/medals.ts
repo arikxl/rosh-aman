@@ -42,10 +42,10 @@ export const TOPIC_MEDALS: Medal[] = [
 
 // --- מדליות גנריות (Milestones) ---
 export const GENERIC_MEDALS: Medal[] = [
-    { id: "games_1", name: "טבילת אש", description: "השלמת משחק מלא אחד", type: "generic", threshold: 1 },
-    { id: "games_100", name: "מאתר יעדים", description: "השלמת 100 משחקים", type: "generic", threshold: 100 },
-    { id: "games_500", name: "אנליסט עלית", description: "השלמת 500 משחקים", type: "generic", threshold: 500 },
-    { id: "games_1000", name: "מעריך לאומי", description: "השלמת 1,000 משחקים", type: "generic", threshold: 1000 },
+    { id: "games_1", name: "טבילת אש", iconUrl: "/imgs/medal_games_1.png", description: "השלמת משחק מלא אחד", type: "generic", threshold: 1 },
+    { id: "games_100", name: "מאתר יעדים", iconUrl: "/imgs/medal_games_100.png", description: "השלמת 100 משחקים", type: "generic", threshold: 100 },
+    { id: "games_500", name: "אנליסט עלית", iconUrl: "/imgs/medal_games_500.png", description: "השלמת 500 משחקים", type: "generic", threshold: 500 },
+    { id: "games_1000", name: "מעריך לאומי", iconUrl: "/imgs/medal_games_1000.png", description: "השלמת 1,000 משחקים", type: "generic", threshold: 1000 },
 
     { id: "correct_100", name: "קצין איסוף", description: "ענית נכון על 100 שאלות במצטבר", type: "generic", threshold: 100 },
     { id: "correct_500", name: "צייד הצללים", description: "ענית נכון על 500 שאלות במצטבר", type: "generic", threshold: 500 },
