@@ -13,7 +13,7 @@ export interface Medal {
 export const TOPIC_MEDALS: Medal[] = [
     // קבוצת ה-50 שאלות (סף: 40)
     { id: "syria", name: "שליט הבשן", description: "ענית נכון על 80% מהשאלות בנושא סוריה", type: "topic", threshold: 40 },
-    { id: "iran", name: "שובר הציר", description: "ענית נכון על 80% מהשאלות בנושא איראן", type: "topic", threshold: 40 },
+    { id: "iran", name: "שובר הציר", iconUrl: "/imgs/medal_topic_2.png", description: "ענית נכון על 80% מהשאלות בנושא איראן", type: "topic", threshold: 40 },
     { id: "lebanon", name: "מנתץ הארזים", description: "ענית נכון על 80% מהשאלות בנושא לבנון", type: "topic", threshold: 40 },
     { id: "egypt", name: "צולח התעלה", description: "ענית נכון על 80% מהשאלות בנושא מצרים", type: "topic", threshold: 40 },
     { id: "jordan", name: "מגן הערבה", description: "ענית נכון על 80% מהשאלות בנושא ירדן", type: "topic", threshold: 40 },
