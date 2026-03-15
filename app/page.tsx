@@ -71,56 +71,52 @@ export default function Home() {
             /* מצב: מחובר */
             <div className="flex flex-col items-center gap-8 w-full">
               {/* כרטיסיית המשתמש - ברוחב מלא ותואמת לגריד */}
-                <div className="w-full flex items-center justify-between p-4 bg-slate-900/50 rounded-3xl border border-slate-800 backdrop-blur-sm shadow-xl px-8">
+                <div className="w-full flex flex-col md:flex-row items-center justify-between p-6 md:p-4 bg-slate-900/50 rounded-3xl border border-slate-800 backdrop-blur-sm shadow-xl px-6 md:px-8 gap-6 md:gap-0">
 
                   {/* ימין: פרטי סוכן */}
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 w-full md:w-auto justify-start">
                     <div className="w-12 h-12 shrink-0 bg-slate-800 rounded-full border border-slate-700 flex items-center justify-center overflow-hidden shadow-inner">
                       <UserButton
                         appearance={{
                           elements: {
-                            rootBox: {
-                              width: '3rem', // שווה ל-w-14
-                              height: '3rem',
-                            },
-                            userButtonAvatarBox: {
-                              width: '3rem',
-                              height: '3rem',
-                            }
+                            rootBox: { width: '3rem', height: '3rem' },
+                            userButtonAvatarBox: { width: '3rem', height: '3rem' }
                           }
                         }}
                       />
                     </div>
                     <div className="flex flex-col items-start leading-tight">
-                      <span className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-mono font-bold">מזהה סוכן פעיל</span>
-                      <span className="text-white font-bold text-lg">
+                      <span className="text-slate-500 text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-mono font-bold whitespace-nowrap">
+                        מזהה סוכן פעיל
+                      </span>
+                      <span className="text-white font-bold text-base md:text-lg truncate max-w-[150px] md:max-w-none">
                         {userData?.name || "סוכן מורשה"}
                       </span>
                     </div>
-                    {/* העיגול של ה-UserButton */}
-
                   </div>
 
-                  {/* שמאל: נתונים מבצעיים */}
-                  <div className="flex items-center gap-8">
+                  {/* שמאל: נתונים מבצעיים - במובייל הם יתפסו את כל הרוחב עם מרווח שווה */}
+                  <div className="flex items-center justify-around md:justify-end w-full md:w-auto gap-4 md:gap-8 border-t border-slate-800 pt-4 md:border-none md:pt-0">
 
                     {/* עיטורים */}
                     <div className="flex flex-col items-center leading-tight">
-                      <span className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-mono font-bold mb-1">עיטורי שירות</span>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-2xl font-black font-mono ${medalCount > 0 ? "text-amber-500" : "text-slate-700"}`}>
-                          {medalCount}
-                        </span>
-                      </div>
+                      <span className="text-slate-500 text-[9px] md:text-[10px] uppercase tracking-[0.1em] md:tracking-[0.2em] font-mono font-bold mb-1 whitespace-nowrap">
+                        עיטורי שירות
+                      </span>
+                      <span className={`text-xl md:text-2xl font-black font-mono ${medalCount > 0 ? "text-amber-500" : "text-slate-700"}`}>
+                        {medalCount}
+                      </span>
                     </div>
 
-                    {/* קו מפריד דק */}
-                    <div className="h-10 w-px bg-slate-800"></div>
+                    {/* קו מפריד - מופיע רק בדסקטופ או נשאר עדין במובייל */}
+                    <div className="h-8 md:h-10 w-px bg-slate-800"></div>
 
                     {/* ניקוד */}
                     <div className="flex flex-col items-center leading-tight">
-                      <span className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-mono font-bold mb-1">ניקוד</span>
-                      <span className="text-emerald-400 font-black text-3xl font-mono tabular-nums">
+                      <span className="text-slate-500 text-[9px] md:text-[10px] uppercase tracking-[0.1em] md:tracking-[0.2em] font-mono font-bold mb-1 whitespace-nowrap">
+                        ניקוד
+                      </span>
+                      <span className="text-emerald-400 font-black text-2xl md:text-3xl font-mono tabular-nums">
                         {userData?.totalPoints?.toLocaleString() || 0}
                       </span>
                     </div>
