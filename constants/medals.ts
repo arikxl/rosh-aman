@@ -12,11 +12,11 @@ export interface Medal {
 // --- מדליות של נושאים (80% הצלחה) ---
 export const TOPIC_MEDALS: Medal[] = [
     // קבוצת ה-50 שאלות (סף: 40)
-    { id: "syria", name: "שליט הבשן", description: "ענית נכון על 80% מהשאלות בנושא סוריה", type: "topic", threshold: 40 },
-    { id: "iran", name: "שובר הציר", iconUrl: "/imgs/medal_topic_2.png", description: "ענית נכון על 80% מהשאלות בנושא איראן", type: "topic", threshold: 40 },
-    { id: "lebanon", name: "מנתץ הארזים", description: "ענית נכון על 80% מהשאלות בנושא לבנון", type: "topic", threshold: 40 },
-    { id: "egypt", name: "צולח התעלה", description: "ענית נכון על 80% מהשאלות בנושא מצרים", type: "topic", threshold: 40 },
-    { id: "jordan", name: "מגן הערבה", description: "ענית נכון על 80% מהשאלות בנושא ירדן", type: "topic", threshold: 40 },
+    { id: "syria", name: "שליט הבשן", iconUrl: "/imgs/medal_topic_1.png", description: "ענית נכון על 80% מהשאלות בנושא סוריה", type: "topic", threshold: 40 },
+    { id: "iran", name: "שובר הציר", iconUrl: "/imgs/medal_topic_1.png", description: "ענית נכון על 80% מהשאלות בנושא איראן", type: "topic", threshold: 40 },
+    { id: "lebanon", name: "מנתץ הארזים", iconUrl: "/imgs/medal_topic_3.png", description: "ענית נכון על 80% מהשאלות בנושא לבנון", type: "topic", threshold: 40 },
+    { id: "egypt", name: "צולח התעלה", iconUrl: "/imgs/medal_topic_4.png", description: "ענית נכון על 80% מהשאלות בנושא מצרים", type: "topic", threshold: 40 },
+    { id: "jordan", name: "מגן הערבה", iconUrl: "/imgs/medal_topic_5.png", description: "ענית נכון על 80% מהשאלות בנושא ירדן", type: "topic", threshold: 40 },
     { id: "turkey", name: "סולטאן מודיעיני", description: "ענית נכון על 80% מהשאלות בנושא טורקיה", type: "topic", threshold: 40 },
     { id: "iraq_central_asia", name: "מומחה דרך המשי", description: "ענית נכון על 80% מהשאלות על עיראק ומרכז אסיה", type: "topic", threshold: 40 },
     { id: "gulf_states", name: "נסיך המפרץ", description: "ענית נכון על 80% מהשאלות בנושא מדינות המפרץ", type: "topic", threshold: 40 },
