@@ -101,7 +101,10 @@ export default function MedalsPage() {
                                         <Image src={unlocked && medal.iconUrl ? medal.iconUrl : "/imgs/locked_medal_generic.png"} alt={medal.name} fill className={`object-contain ${!unlocked ? 'grayscale brightness-50 opacity-40' : ''}`} />
                                     </div>
                                     <h4 className={`font-bold text-xs mb-3 h-8 flex items-center leading-tight ${unlocked ? 'text-slate-100' : 'text-slate-600'}`}>{medal.name}</h4>
-                                    <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden mt-auto">
+                                    <p className={`text-[10px] leading-snug mt-1 mb-4 px-1 h-9 flex items-center justify-center
+    ${unlocked ? 'text-slate-400' : 'text-slate-800 italic'}`}>
+                                        {unlocked ? medal.description : "פרטי העיטור חסויים עד להשלמת היעד"}
+                                    </p>                                   <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden mt-auto">
                                         <div className={`h-full transition-all duration-1000 ${unlocked ? 'bg-emerald-500' : 'bg-slate-700'}`} style={{ width: `${(currentScore / medal.threshold) * 100}%` }} />
                                     </div>
                                 </div>
