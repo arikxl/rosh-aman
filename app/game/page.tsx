@@ -143,6 +143,9 @@ export default function GamePage() {
                     <Link href="/medals" className="px-8 py-4 border border-slate-700 text-slate-300 hover:bg-slate-800 transition-all rounded-2xl font-bold text-center">
                         צפיה בארון העיטורים
                     </Link>
+                    <Link href="/game" className="px-8 py-4 border border-slate-700 text-slate-300 hover:bg-slate-800 transition-all rounded-2xl font-bold text-center">
+                        יציאה למבצע חדש  
+                    </Link>
                 </div>
             </div>
         );
