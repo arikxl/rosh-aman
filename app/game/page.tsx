@@ -31,7 +31,7 @@ function useTypewriter(text: string | undefined, speed: number = 20) {
 
 export default function GamePage() {
     // 2. Hooks ושאילתות
-    const [gameSeed] = useState(() => Date.now());
+    const [gameSeed, setGameSeed] = useState(() => Date.now());
     const questions = useQuery(api.questions.getGameRound, { seed: gameSeed });
     const saveScore = useMutation(api.users.updateScore);
     const updateGameStats = useMutation(api.users.updateGameStats);
@@ -127,6 +127,18 @@ export default function GamePage() {
         );
     }
 
+
+    const handleRestart = () => {
+        setGameSeed(Date.now()); // יגרום ל-Convex למשוך שאלות חדשות
+        setCurrentIndex(0);
+        setScore(0);
+        setShowResult(false);
+        setSelectedAnswer(null);
+        setIsChecking(false);
+        setGameResults([]);
+        setTimeLeft(10);
+    };
+
     // 8. מסך תוצאות סופי
     if (showResult) {
         return (
@@ -143,9 +155,13 @@ export default function GamePage() {
                     <Link href="/medals" className="px-8 py-4 border border-slate-700 text-slate-300 hover:bg-slate-800 transition-all rounded-2xl font-bold text-center">
                         צפיה בארון העיטורים
                     </Link>
-                    <Link href="/game" className="px-8 py-4 border border-slate-700 text-slate-300 hover:bg-slate-800 transition-all rounded-2xl font-bold text-center">
-                        יציאה למבצע חדש  
-                    </Link>
+                    {/* במקום ה-Link המקורי: */}
+                    <button
+                        onClick={handleRestart}
+                        className="px-8 py-4 border border-slate-700 text-slate-300 hover:bg-slate-800 transition-all rounded-2xl font-bold text-center cursor-pointer"
+                    >
+                        יציאה למבצע חדש
+                    </button>
                 </div>
             </div>
         );
@@ -211,13 +227,16 @@ export default function GamePage() {
                                     key={index}
                                     disabled={isChecking || selectedAnswer !== null}
                                     onClick={() => handleAnswer(index)}
-                                    className={`w-full p-4 border-2 rounded-xl text-right transition-all text-base md:text-lg flex justify-between items-center font-bold ${buttonStyle}`}
+                                    className={`w-full p-4 border-2 rounded-xl transition-all text-base md:text-lg flex items-center justify-center gap-3 font-bold ${buttonStyle}`}
                                 >
-                                    <span className="text-xl font-mono">
-                                        {selectedAnswer !== null && isCorrect && "✓"}
-                                        {selectedAnswer === index && !isCorrect && "✕"}
-                                    </span>
-                                    {option}
+                                    {/* האייקון יופיע רק כשצריך ויעמוד לצד הטקסט במרכז */}
+                                    {(selectedAnswer !== null) && (
+                                        <span className="text-xl font-mono">
+                                            {isCorrect ? "✓" : (isSelected ? "✕" : "")}
+                                        </span>
+                                    )}
+
+                                    <span>{option}</span>
                                 </button>
                             );
                         })}
